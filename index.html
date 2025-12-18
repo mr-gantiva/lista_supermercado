@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Shopping List</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Import -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Outfit:wght@600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': 'hsl(205, 78%, 60%)', // Calm blue for accents
+                        'secondary-green': 'hsl(145, 50%, 70%)', // Soft mint green for subtle highlights
+                        'neutral-light': 'hsl(210, 20%, 98%)', // Very light blue-gray for backgrounds
+                        'neutral-dark': 'hsl(210, 10%, 20%)', // Deep charcoal for dark text
+                        'accent-orange': 'hsl(30, 80%, 60%)', // Muted orange for interactive elements
+                        'white': 'hsl(0, 0%, 100%)', // Pure white
+                    },
+                    fontFamily: {
+                        display: ['Outfit', 'sans-serif'], // For prominent headers
+                        body: ['Lato', 'sans-serif'],     // For highly readable body text
+                    },
+                    boxShadow: {
+                        'custom': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.08)',
+                        'neumorphic': '6px 6px 12px rgba(0,0,0,0.1), -6px -6px 12px rgba(255,255,255,0.8)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: hsl(210, 30%, 95%); /* A slightly deeper background for visual depth */
+            color: theme('colors.neutral-dark');
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* Subtle scrollbar styling for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: theme('colors.neutral-light');
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: theme('colors.primary-blue');
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: hsl(205, 78%, 50%);
+        }
+
+        /* Glassmorphism effect for cards/sections */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7); /* Slightly transparent white */
+            backdrop-filter: blur(10px); /* Blur the background */
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle border */
+            border-radius: 1.5rem; /* Rounded corners */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08); /* Soft shadow */
+        }
+
+        /* Custom table styling for responsiveness and aesthetics */
+        .responsive-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 0.75rem; /* Spacing between rows */
+        }
+
+        .responsive-table th, .responsive-table td {
+            text-align: left;
+            padding: 1rem 1.5rem;
+            vertical-align: middle;
+            font-weight: 400; /* Lighter body text */
+        }
+
+        .responsive-table thead th {
+            font-weight: 700;
+            color: theme('colors.primary-blue');
+            font-family: theme('fontFamily.display');
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid theme('colors.primary-blue');
+            background-color: transparent !important; /* Ensure header background is clear */
+        }
+
+        .responsive-table tbody tr {
+            background-color: theme('colors.white');
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* Subtle shadow for each row */
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .responsive-table tbody tr:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+        }
+
+        .responsive-table tbody tr:first-child td {
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+        }
+
+        .responsive-table tbody tr:last-child td {
+            border-bottom-left-radius: 1rem;
+            border-bottom-right-radius: 1rem;
+        }
+
+        /* Mobile specific table adjustments */
+        @media screen and (max-width: 768px) {
+            .responsive-table thead {
+                display: none; /* Hide table headers on small screens */
+            }
+
+            .responsive-table tbody tr {
+                display: block;
+                margin-bottom: 1.5rem;
+                border-radius: 1.5rem;
+                overflow: hidden; /* Ensure rounded corners clip content */
+            }
+
+            .responsive-table tbody td {
+                display: block;
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+                border: none;
+            }
+
+            .responsive-table tbody td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 1.5rem;
+                width: calc(50% - 1.5rem);
+                text-align: left;
+                font-weight: 700;
+                color: theme('colors.primary-blue');
+                font-family: theme('fontFamily.display');
+            }
+        }
+    </style>
+</head>
+<body class="font-body text-neutral-dark min-h-screen flex flex-col antialiased">
+    <header class="py-8 bg-gradient-to-r from-primary-blue to-secondary-green shadow-lg">
+        <div class="container text-center">
+            <h1 class="text-4xl md:text-5xl font-display text-white tracking-tight leading-tight">
+                My Shopping List
+            </h1>
+        </div>
+    </header>
+
+    <main class="flex-grow container py-10">
+        <!-- Input Form Section -->
+        <section class="mb-12 p-6 md:p-10 glass-card">
+            <h2 class="text-2xl md:text-3xl font-display text-neutral-dark mb-8 text-center">Add New Item</h2>
+            <form id="addItemForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
+                <div>
+                    <label for="productType" class="block text-sm font-semibold mb-2 text-neutral-dark">Product Type</label>
+                    <input type="text" id="productType" name="productType" placeholder="e.g., Dairy" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition duration-200 outline-none">
+                </div>
+                <div>
+                    <label for="itemName" class="block text-sm font-semibold mb-2 text-neutral-dark">Item Name</label>
+                    <input type="text" id="itemName" name="itemName" placeholder="e.g., Milk" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition duration-200 outline-none">
+                </div>
+                <div>
+                    <label for="brand" class="block text-sm font-semibold mb-2 text-neutral-dark">Brand</label>
+                    <input type="text" id="brand" name="brand" placeholder="e.g., Horizon" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition duration-200 outline-none">
+                </div>
+                <div>
+                    <label for="price" class="block text-sm font-semibold mb-2 text-neutral-dark">Price ($)</label>
+                    <input type="number" id="price" name="price" placeholder="e.g., 4.99" step="0.01" min="0" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent transition duration-200 outline-none">
+                </div>
+                <div class="md:col-span-2 lg:col-span-4 flex justify-center mt-4">
+                    <button type="submit" class="bg-accent-orange text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-accent-orange/50 active:scale-95">
+                        Add Item
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Shopping List Display Section -->
+        <section class="p-6 md:p-10 glass-card">
+            <h2 class="text-2xl md:text-3xl font-display text-neutral-dark mb-8 text-center">My List</h2>
+            <div class="overflow-x-auto">
+                <table class="responsive-table">
+                    <thead>
+                        <tr>
+                            <th class="pr-2">Product Type</th>
+                            <th class="pr-2">Name</th>
+                            <th class="pr-2">Brand</th>
+                            <th class="text-right">Price</th>
+                        </tr>
+                    </thead>
+                    <tbody id="shoppingListBody" class="space-y-3">
+                        <!-- Shopping list items will be injected here by JavaScript -->
+                    </tbody>
+                    <tfoot>
+                        <tr class="h-6"></tr> <!-- Spacer row -->
+                        <tr class="bg-primary-blue text-white rounded-lg shadow-lg">
+                            <td colspan="3" class="font-display font-bold text-lg rounded-l-lg py-4 px-6">Total Estimated Cost:</td>
+                            <td id="totalCost" class="font-display font-bold text-lg text-right rounded-r-lg py-4 px-6">$0.00</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div id="emptyListMessage" class="text-center text-gray-500 mt-8 text-lg hidden">
+                Your shopping list is empty. Add some items!
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const addItemForm = document.getElementById('addItemForm');
+        const shoppingListBody = document.getElementById('shoppingListBody');
+        const totalCostSpan = document.getElementById('totalCost');
+        const emptyListMessage = document.getElementById('emptyListMessage');
+
+        let shoppingList = [];
+
+        // Load shopping list from localStorage
+        function loadShoppingList() {
+            const storedList = localStorage.getItem('shoppingList');
+            if (storedList) {
+                shoppingList = JSON.parse(storedList);
+            }
+            renderShoppingList();
+        }
+
+        // Save shopping list to localStorage
+        function saveShoppingList() {
+            localStorage.setItem('shoppingList', JSON.stringify(shoppingList));
+        }
+
+        // Render shopping list items
+        function renderShoppingList() {
+            shoppingListBody.innerHTML = ''; // Clear current list
+            let totalCost = 0;
+
+            if (shoppingList.length === 0) {
+                emptyListMessage.classList.remove('hidden');
+            } else {
+                emptyListMessage.classList.add('hidden');
+                shoppingList.forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td data-label="Product Type" class="rounded-l-lg">${escapeHTML(item.productType)}</td>
+                        <td data-label="Name">${escapeHTML(item.name)}</td>
+                        <td data-label="Brand">${escapeHTML(item.brand)}</td>
+                        <td data-label="Price" class="text-right flex items-center justify-end rounded-r-lg">
+                            $${item.price.toFixed(2)}
+                            <button class="ml-4 p-2 text-red-500 hover:text-red-700 transition-colors duration-200" onclick="removeItem(${index})">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 11-2 0v6a1 1 0 112 0V8z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </td>
+                    `;
+                    shoppingListBody.appendChild(row);
+                    totalCost += item.price;
+                });
+            }
+
+            totalCostSpan.textContent = `$${totalCost.toFixed(2)}`;
+        }
+
+        // Add new item to the list
+        addItemForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent page reload
+
+            const productType = document.getElementById('productType').value.trim();
+            const itemName = document.getElementById('itemName').value.trim();
+            const brand = document.getElementById('brand').value.trim();
+            const price = parseFloat(document.getElementById('price').value);
+
+            if (!itemName || isNaN(price) || price < 0) {
+                alert('Please enter a valid item name and a non-negative price.');
+                return;
+            }
+
+            const newItem = {
+                productType: productType || 'General', // Default to 'General' if not provided
+                name: itemName,
+                brand: brand || 'N/A', // Default to 'N/A' if not provided
+                price: price,
+            };
+
+            shoppingList.push(newItem);
+            saveShoppingList();
+            renderShoppingList();
+
+            // Clear form fields
+            addItemForm.reset();
+            document.getElementById('itemName').focus();
+        });
+
+        // Remove item from the list
+        function removeItem(index) {
+            shoppingList.splice(index, 1);
+            saveShoppingList();
+            renderShoppingList();
+        }
+
+        // Helper function to escape HTML for security
+        function escapeHTML(str) {
+            const div = document.createElement('div');
+            div.appendChild(document.createTextNode(str));
+            return div.innerHTML;
+        }
+
+        // Initial load of the shopping list when the page loads
+        document.addEventListener('DOMContentLoaded', loadShoppingList);
+    </script>
+</body>
+</html>
